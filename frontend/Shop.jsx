@@ -16,8 +16,8 @@ function Shop() {
   const userId = JSON.parse(localStorage.getItem("session"));
 
   if(islogin){
-    axios.get(`${REACT_APP_BACKEND_API}/api/user/${userId.userId}`)
-    .then(response=>console.log(response.data))
+    axios.get(`${REACT_APP_BACKEND_API}/api/user/${userId.userId}`, {withCredentials: true})
+    .then(response => console.log(response.data))
   }
 
   return (

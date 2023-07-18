@@ -9,31 +9,44 @@ import Routers from './routes/index.js';
 const app = express();
 dbConnect.connectMysql();
 
+const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173']
+
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    credentials: true,
+    origin: (origin, callback) => {
+        console.log('Origin:', origin)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
 };
+
+// Session setting
+app.use(session({
+    secret: 'your-secret-key',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      // Set the domain option to make the session cookie valid across different ports
+      domain: 'localhost',
+      secure: false, // Set to 'true' if using HTTPS, otherwise 'false'
+      maxAge: 60000000,
+      path: '/',
+      httpOnly: true
+    },
+}))
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Session setting
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: parseInt(process.env.SESSION_MAX_AGE)
-    }
-}))
-
 // middleware to test if authenticated
 const requireAuth = (req, res, next) => {
     const {user} = req.session;
-    console.log(`Check working: ${req.session}`);
+    console.log(req.session)
+    console.log('Session ID:', req.sessionID)
     if(!user){
         return res.status(401).json({message: 'Unauthorized'})
     }

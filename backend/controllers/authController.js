@@ -9,8 +9,11 @@ const signIn = async (req, res) => {
         const passwordValid = await verifyPassword(req.body.password, foundUser.password);
         if (passwordValid) {
             const userInfo = foundUser;
-            req.session.user = userInfo;
-            req.session.save();
+            req.session.user = foundUser.id;
+            req.session.save((err) => {
+                console.log('Worked')
+                console.error('err:', err)
+            });
             console.log(req.session);
             res.send({result: 200, msg: 'Aunthentication successful!', sessionId: req.session.id, userId: userInfo.id })
         }else {
@@ -27,6 +30,7 @@ const verifyPassword = (enteredPassword, originalPassword) => {
   }
 
 const signOut = (req, res) => {
+    console.log('Signing out')
     req.session.destroy();
     res.send({result: 200, msg: "Signed out successfully!"})
 }

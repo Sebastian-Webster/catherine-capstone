@@ -32,24 +32,33 @@ function Signin() {
         email: email.value,
         password: password.value
       }
-      axios.post(`${REACT_APP_BACKEND_API}/api/auth/signin`, userInfo)
-      .then(response=>response.data)
-      .then((json)=>{
-        if (json.result === 200) {
-          // Log in Success
+
+      fetch(`${REACT_APP_BACKEND_API}/api/auth/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userInfo),
+        credentials: 'include'
+      }).then(response => {
+        if (response.status === 200) {
+          return response.json()
+        } else if (response.status === 203) {
+          setAlertText('Password is wrong. Please enter correct password.')
+          return Promise.resolve(null)
+        } else if (response.status === 204) {
+          setAlertText('User can not be found')
+          return Promise.resolve(null)
+        }
+      }).then(json => {
+        if (json !== null) {
           const newSession = {
             sessionId: json.sessionId,
             userId: json.userId
           }
           localStorage.setItem('session', JSON.stringify(newSession));
           navigate('/');
-        } else if (json.result === 203){
-          // Wrong Password
-          setAlertText('Password is wrong. Please enter correct password.')
-        } else if (json.result === 204){
-          // email does not exist.
-          setAlertText('User can not be found')
-        };
+        }
       })
   }
   

@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from "express";
 const app = express();
-import session from 'express-session';
 import multer from "multer";
 import Controllers from "../controllers/index.js";
 const router = express.Router();
